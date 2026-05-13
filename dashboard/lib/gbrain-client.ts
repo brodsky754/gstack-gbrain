@@ -2,7 +2,8 @@
 // One spawn per call; ~50ms overhead. Acceptable at single-user load.
 // All output is JSON; CLI invocation uses `--json` flag where supported.
 
-import { spawn } from 'node:child_process';
+import 'server-only';
+import { spawn } from 'child_process';
 import type {
   BrainStats,
   BrainPage,

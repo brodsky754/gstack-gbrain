@@ -5,14 +5,16 @@ import type { BusEvent, BusEventType } from './types';
 
 const RING_BUFFER_SIZE = 50; // events kept for last-event-id replay
 
-type Handler = (event: BusEvent) => void;
+// Internal storage erases the payload type; consumers downcast in their handler.
+type AnyBusEvent = BusEvent<object>;
+type Handler = (event: AnyBusEvent) => void;
 
 export class EventBus {
   private handlers = new Set<Handler>();
-  private ring: BusEvent[] = [];
+  private ring: AnyBusEvent[] = [];
   private nextId = 1;
 
-  publish<T extends Record<string, unknown>>(
+  publish<T extends object>(
     type: BusEventType,
     payload: T,
   ): BusEvent<T> {
@@ -22,13 +24,13 @@ export class EventBus {
       timestamp: Date.now(),
       payload,
     };
-    this.ring.push(event);
+    this.ring.push(event as AnyBusEvent);
     if (this.ring.length > RING_BUFFER_SIZE) {
       this.ring.shift();
     }
     for (const handler of this.handlers) {
       try {
-        handler(event);
+        handler(event as AnyBusEvent);
       } catch (err) {
         // Never let a bad subscriber take down the bus.
         // eslint-disable-next-line no-console
@@ -46,7 +48,7 @@ export class EventBus {
   }
 
   /** Replay events since the given id (exclusive). Empty array if none. */
-  replay(sinceId?: string): BusEvent[] {
+  replay(sinceId?: string): AnyBusEvent[] {
     if (!sinceId) return [...this.ring];
     const idx = this.ring.findIndex(e => e.id === sinceId);
     if (idx === -1) return [...this.ring]; // unknown id → full replay

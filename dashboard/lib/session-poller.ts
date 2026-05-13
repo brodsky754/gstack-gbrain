@@ -3,9 +3,10 @@
 //
 // Booted once at server start via instrumentation.ts.
 
-import { readdir, stat, open } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join, basename } from 'node:path';
+import 'server-only';
+import { readdir, stat, open } from 'fs/promises';
+import { homedir } from 'os';
+import { join, basename } from 'path';
 
 import { bus } from './event-bus';
 import {

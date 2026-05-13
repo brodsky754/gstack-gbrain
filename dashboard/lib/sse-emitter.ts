@@ -14,7 +14,7 @@ const SSE_HEADERS = {
   'X-Accel-Buffering': 'no',
 } as const;
 
-function formatSseFrame(event: BusEvent): string {
+function formatSseFrame(event: BusEvent<object>): string {
   // Per spec: each event is `id: ...\nevent: ...\ndata: ...\n\n`.
   // Data is JSON-encoded; multi-line data fields would need per-line `data:`,
   // but JSON on one line keeps this simple.

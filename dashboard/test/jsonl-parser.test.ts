@@ -41,11 +41,14 @@ describe('parseSessionLine', () => {
 });
 
 describe('extractBrainSlugs', () => {
-  test('finds slugs in tool input strings', () => {
+  test('finds slugs in tool input strings (strips file extension)', () => {
     const slugs = extractBrainSlugs({
       file_path: '/Users/nate/IdeaProjects/gstack-gbrain/docs/designs/people/alice-example.md',
     });
-    expect(slugs).toContain('people/alice-example.md');
+    // The slug regex stops at the last alphanumeric char by design — gbrain
+    // slugs don't carry file extensions, so "people/alice-example.md" yields
+    // the canonical slug "people/alice-example".
+    expect(slugs).toContain('people/alice-example');
   });
 
   test('finds slugs in get_page calls', () => {

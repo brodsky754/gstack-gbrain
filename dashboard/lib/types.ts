@@ -60,7 +60,7 @@ export type BusEventType =
   | 'parse_error'
   | 'gbrain_error';
 
-export interface BusEvent<T = Record<string, unknown>> {
+export interface BusEvent<T extends object = Record<string, unknown>> {
   id: string;            // monotonic, used for SSE last-event-id replay
   type: BusEventType;
   timestamp: number;     // ms since epoch

@@ -38,7 +38,7 @@ describe('EventBus', () => {
     const second = bus.publish('session_active', { i: 2 });
     bus.publish('session_active', { i: 3 });
     const replayed = bus.replay(second.id);
-    expect(replayed.map((e) => e.payload.i)).toEqual([3]);
+    expect(replayed.map((e) => (e.payload as { i: number }).i)).toEqual([3]);
   });
 
   test('replay with unknown id returns full buffer (full replay fallback)', () => {

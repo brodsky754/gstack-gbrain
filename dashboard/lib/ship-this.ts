@@ -4,10 +4,8 @@
 // Decision D5 (plan-eng-review): clipboard + osascript handoff. Reliable on
 // stage, one extra cmd+v + enter, no fragility from auto-typing.
 
-import { spawn } from 'node:child_process';
-import { writeFileSync, mkdtempSync, unlinkSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import 'server-only';
+import { spawn } from 'child_process';
 
 export interface ShipThisInput {
   /** Absolute path to the repo where the new claude session should start. */
@@ -39,12 +37,16 @@ export function buildShipCommand(input: ShipThisInput): string {
  * Pure function — safe to unit-test for shell-injection risks.
  */
 export function buildOsascriptArgs(repoPath: string): string[] {
-  // Validate repoPath: must be absolute, must not contain shell metacharacters
-  // that survive osascript escaping. Reject early if anything looks wrong.
+  // Validate repoPath: must be absolute. Then whitelist the safe character
+  // set (alphanumerics + " " + "_" + "-" + "." + "/" + "~"). Whitelist beats
+  // blacklist here because (a) legitimate repo paths never need shell
+  // metacharacters, and (b) the AppleScript -> Terminal -> bash double-quote
+  // chain has subtle expansion semantics it's safer not to reason about
+  // case-by-case. Anything outside the set is rejected up front.
   if (!repoPath.startsWith('/')) {
     throw new Error(`shipThis: repoPath must be absolute, got "${repoPath}"`);
   }
-  if (/["`$\\]/.test(repoPath)) {
+  if (!/^[a-zA-Z0-9 _\-./~]+$/.test(repoPath)) {
     throw new Error(`shipThis: repoPath contains unsafe characters: "${repoPath}"`);
   }
   // AppleScript double-quoted strings: escape backslash and double-quote.
