@@ -2,22 +2,35 @@
 
 import { useState } from 'react';
 import type { BriefMeResult } from '@/lib/types';
+import { useToast } from './Toast';
 
 export function BriefMePane() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<BriefMeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   async function runBrief() {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/brief', { method: 'POST' });
-      if (!res.ok) throw new Error(`brief failed: ${res.status}`);
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`brief failed: ${res.status} ${body.slice(0, 200)}`);
+      }
       const data = (await res.json()) as BriefMeResult;
       setResult(data);
+      const total = data.today_meetings.length + data.related_people.length + data.open_threads.length;
+      toast(
+        total === 0
+          ? 'No meetings, people, or open threads for today.'
+          : `Brief ready: ${data.today_meetings.length} meetings · ${data.related_people.length} people · ${data.open_threads.length} threads.`,
+        { severity: total === 0 ? 'info' : 'success' },
+      );
     } catch (err) {
       setError((err as Error).message);
+      toast(`Brief Me failed: ${(err as Error).message}`, { severity: 'error', ttlMs: 8_000 });
     } finally {
       setLoading(false);
     }
@@ -31,12 +44,13 @@ export function BriefMePane() {
         body: JSON.stringify({ slug }),
       });
       const data = await res.json();
-      // TODO(hackathon): replace with a real toast component
-      // eslint-disable-next-line no-alert
-      alert(data.message ?? 'Ship This triggered');
+      if (!res.ok) {
+        toast(data.message ?? `Ship This failed: HTTP ${res.status}`, { severity: 'error', ttlMs: 8_000 });
+        return;
+      }
+      toast(data.message ?? 'Terminal opening — paste with cmd+v.', { severity: 'success' });
     } catch (err) {
-      // eslint-disable-next-line no-alert
-      alert(`Ship This failed: ${(err as Error).message}`);
+      toast(`Ship This failed: ${(err as Error).message}`, { severity: 'error', ttlMs: 8_000 });
     }
   }
 

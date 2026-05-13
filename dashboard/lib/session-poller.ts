@@ -3,7 +3,7 @@
 //
 // Booted once at server start via instrumentation.ts.
 
-import 'server-only';
+// Server-side only — see lib/gbrain-client.ts for the runtime-isolation note.
 import { readdir, stat, open } from 'fs/promises';
 import { homedir } from 'os';
 import { join, basename } from 'path';

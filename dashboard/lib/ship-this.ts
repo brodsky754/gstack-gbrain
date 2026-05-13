@@ -4,7 +4,7 @@
 // Decision D5 (plan-eng-review): clipboard + osascript handoff. Reliable on
 // stage, one extra cmd+v + enter, no fragility from auto-typing.
 
-import 'server-only';
+// Server-side only — see lib/gbrain-client.ts for the runtime-isolation note.
 import { spawn } from 'child_process';
 
 export interface ShipThisInput {
