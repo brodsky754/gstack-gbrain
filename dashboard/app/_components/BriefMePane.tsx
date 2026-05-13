@@ -2,13 +2,21 @@
 
 import { useState } from 'react';
 import type { BriefMeResult } from '@/lib/types';
+import type { BrainState } from '@/lib/gbrain-client';
 import { useToast } from './Toast';
 
-export function BriefMePane() {
+const BRAIN_NOT_READY_MESSAGES: Record<Exclude<BrainState, 'has_data'>, string> = {
+  absent: 'gbrain CLI not on PATH. Run ./bootstrap.sh first.',
+  uninitialized: "Brain not initialized. Run `gbrain init --pglite < /dev/null` then refresh.",
+  empty: 'Brain is empty. Import some pages first (e.g. `gbrain import ~/notes/`), then refresh.',
+};
+
+export function BriefMePane({ brainState = 'has_data' }: { brainState?: BrainState }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<BriefMeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const brainReady = brainState === 'has_data';
 
   async function runBrief() {
     setLoading(true);
@@ -61,20 +69,27 @@ export function BriefMePane() {
         <button
           type="button"
           onClick={runBrief}
-          disabled={loading}
-          className="btn-primary text-sm"
+          disabled={loading || !brainReady}
+          className="btn-primary text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          title={brainReady ? '' : BRAIN_NOT_READY_MESSAGES[brainState as Exclude<BrainState, 'has_data'>]}
         >
           {loading ? 'briefing…' : 'Brief Me'}
         </button>
       </div>
 
-      {error && (
+      {!brainReady && (
+        <div className="text-text-muted text-sm">
+          {BRAIN_NOT_READY_MESSAGES[brainState as Exclude<BrainState, 'has_data'>]}
+        </div>
+      )}
+
+      {error && brainReady && (
         <div className="card border-status-errored/40 text-status-errored text-sm">
           {error}
         </div>
       )}
 
-      {!result && !error && !loading && (
+      {brainReady && !result && !error && !loading && (
         <div className="text-text-muted text-sm">
           Click <em>Brief Me</em> for today's meetings, related people, and open threads.
         </div>

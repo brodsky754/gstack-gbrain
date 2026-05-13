@@ -1,13 +1,18 @@
 // Shared types — single source of truth for the dashboard's data shapes.
 // Adapter contracts here drive every other module.
 
+/**
+ * Brain stats — shape matches `gbrain call get_stats '{}'` output.
+ * Verified against gbrain v0.32.0.
+ */
 export interface BrainStats {
   page_count: number;
   chunk_count: number;
-  people_count: number;
-  company_count: number;
-  last_sync_iso: string | null;
-  engine: 'pglite' | 'postgres';
+  embedded_count: number;
+  link_count: number;
+  tag_count: number;
+  timeline_entry_count: number;
+  pages_by_type: Record<string, number>;
 }
 
 export interface BrainPage {

@@ -40,7 +40,7 @@ export default async function Page() {
             </h1>
             <span className="text-sm text-text-muted font-mono">v0.1</span>
           </header>
-          <BriefMePane />
+          <BriefMePane brainState={brain.state} />
           <SessionPane />
         </section>
 
