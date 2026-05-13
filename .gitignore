@@ -1,3 +1,10 @@
+# dashboard build artifacts
+dashboard/node_modules/
+dashboard/.next/
+dashboard/out/
+dashboard/next-env.d.ts
+dashboard/*.tsbuildinfo
+
 # OS / editor
 .DS_Store
 Thumbs.db

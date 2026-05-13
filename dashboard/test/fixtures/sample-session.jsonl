@@ -1,0 +1,10 @@
+{"type":"system","subtype":"init","session_id":"abc123"}
+{"role":"user","content":[{"type":"text","text":"Run /office-hours for the new dashboard idea"}]}
+{"role":"assistant","content":[{"type":"text","text":"Loading the skill."}]}
+{"type":"tool_use","id":"toolu_1","name":"Skill","input":{"skill":"office-hours","args":""}}
+{"type":"tool_result","tool_use_id":"toolu_1","content":[{"type":"text","text":"skill loaded"}]}
+{"type":"tool_use","id":"toolu_2","name":"Read","input":{"file_path":"/Users/nate/IdeaProjects/gstack-gbrain/docs/designs/people/alice-example.md"}}
+{"type":"tool_use","id":"toolu_3","name":"get_page","input":{"slug":"companies/widget-co"}}
+{"usage":{"input_tokens":12500,"output_tokens":320}}
+{"type":"tool_use","id":"toolu_4","name":"query","input":{"text":"meetings about people/bob-example"}}
+{"usage":{"input_tokens":15800,"output_tokens":540}}
