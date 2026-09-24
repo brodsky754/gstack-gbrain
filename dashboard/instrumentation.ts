@@ -1,8 +1,8 @@
 // Boots once per Next.js server process.
 // Starts the session poller and runs the gbrain availability probe.
 //
-// Next.js calls this automatically when `experimental.instrumentationHook` is
-// true (see next.config.js).
+// Next.js 15 calls this automatically (instrumentation is stable; no config
+// flag needed).
 
 export async function register(): Promise<void> {
   // Only run on the Node.js server runtime, not Edge.

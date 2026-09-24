@@ -41,7 +41,7 @@ See [`../docs/designs/2026-05-12-mission-control-dashboard.md`](../docs/designs/
 In short:
 
 ```
-Browser (Next.js 14 + Tailwind, dark mode, two-pane split)
+Browser (Next.js 15 + Tailwind, dark mode, two-pane split)
    │
    │   SSE from /api/events  (last-event-id replay for reconnect)
    ▼
