@@ -4,6 +4,7 @@
 // will read) and then triggers the macOS clipboard + Terminal handoff.
 
 import { NextResponse } from 'next/server';
+import { rejectCrossOrigin } from '@/lib/request-guard';
 import { shipThis } from '@/lib/ship-this';
 import { listEdges } from '@/lib/gbrain-client';
 import { bus } from '@/lib/event-bus';
@@ -18,6 +19,11 @@ interface ShipRequest {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  // This handler opens Terminal and writes to the clipboard. Refuse cross-site
+  // POSTs from other pages in the user's browser (see lib/request-guard.ts).
+  const forbidden = rejectCrossOrigin(req);
+  if (forbidden) return forbidden;
+
   let body: ShipRequest;
   try {
     body = (await req.json()) as ShipRequest;

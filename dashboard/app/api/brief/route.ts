@@ -2,6 +2,7 @@
 // (so the graph follows), returns the BriefMeResult shape.
 
 import { NextResponse } from 'next/server';
+import { rejectCrossOrigin } from '@/lib/request-guard';
 import { listMeetingsToday, query, getPage } from '@/lib/gbrain-client';
 import { bus } from '@/lib/event-bus';
 import type { BriefMeResult, BrainPage } from '@/lib/types';
@@ -9,7 +10,10 @@ import type { BriefMeResult, BrainPage } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function POST(): Promise<Response> {
+export async function POST(req: Request): Promise<Response> {
+  const forbidden = rejectCrossOrigin(req);
+  if (forbidden) return forbidden;
+
   try {
     const today_meetings = await listMeetingsToday();
 
