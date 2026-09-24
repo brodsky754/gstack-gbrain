@@ -2,9 +2,8 @@
 const nextConfig = {
   // The dashboard is local-only. No remote images, no telemetry.
   reactStrictMode: true,
-  experimental: {
-    instrumentationHook: true, // for session-poller boot in instrumentation.ts
-  },
+  // instrumentation.ts (session-poller boot) is stable in Next 15 and runs
+  // without the old experimental.instrumentationHook flag.
   // instrumentation.ts dynamically imports lib/gbrain-client + lib/session-poller +
   // lib/ship-this, all of which pull in Node built-ins (child_process, fs, os).
   // Next.js compiles instrumentation.ts for BOTH the Node and Edge runtimes by
