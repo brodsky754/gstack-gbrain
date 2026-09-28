@@ -6,6 +6,7 @@
 
 import { NextResponse } from 'next/server';
 import { rejectUntrustedHost } from '@/lib/request-guard';
+import { parseIntParam } from '@/lib/query-params';
 import { getGraphSnapshot } from '@/lib/gbrain-client';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,9 @@ export async function GET(req: Request): Promise<Response> {
   if (forbidden) return forbidden;
 
   const { searchParams } = new URL(req.url);
-  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') ?? '50', 10), 5), 200);
+  // Non-numeric input used to propagate NaN through Math.min/Math.max and
+  // silently return an empty graph; fall back to the default instead.
+  const limit = parseIntParam(searchParams.get('limit'), { fallback: 50, min: 5, max: 200 });
 
   try {
     const snapshot = await getGraphSnapshot(limit);
