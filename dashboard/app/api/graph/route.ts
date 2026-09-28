@@ -5,12 +5,17 @@
 // hackathon iteration).
 
 import { NextResponse } from 'next/server';
+import { rejectUntrustedHost } from '@/lib/request-guard';
 import { getGraphSnapshot } from '@/lib/gbrain-client';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: Request): Promise<Response> {
+  // Refuse DNS-rebound requests (see lib/request-guard.ts) before spawning gbrain.
+  const forbidden = rejectUntrustedHost(req);
+  if (forbidden) return forbidden;
+
   const { searchParams } = new URL(req.url);
   const limit = Math.min(Math.max(parseInt(searchParams.get('limit') ?? '50', 10), 5), 200);
 

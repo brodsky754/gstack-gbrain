@@ -34,6 +34,12 @@ Prerequisites:
 - `gbrain` on PATH (`./bootstrap.sh` handles this)
 - macOS for the Ship This handoff in v1 (osascript + Terminal.app). Linux/Windows is a v2 follow-up.
 
+Security note: the dashboard has no auth, so it only answers requests whose
+`Host` header is a loopback name (`localhost`, `127.0.0.1`, `[::1]`,
+`*.localhost`). That blocks DNS-rebinding pages that would otherwise look
+same-origin to the browser. To reach it under another hostname on purpose,
+set `GSTACK_HUD_ALLOWED_HOSTS=hud.lan,other.lan` (comma-separated, no port).
+
 ## Architecture
 
 See [`../docs/designs/2026-05-12-mission-control-dashboard.md`](../docs/designs/2026-05-12-mission-control-dashboard.md) for the full plan (office-hours → CEO review → eng review → design review).
