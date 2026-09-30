@@ -4,9 +4,9 @@
   "private": true,
   "description": "Local-first dashboard: the gstack↔gbrain remote. Your AI's memory and your AI's actions, one click apart.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 127.0.0.1",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H 127.0.0.1",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "lint": "next lint",

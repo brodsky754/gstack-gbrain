@@ -40,6 +40,11 @@ Security note: the dashboard has no auth, so it only answers requests whose
 same-origin to the browser. To reach it under another hostname on purpose,
 set `GSTACK_HUD_ALLOWED_HOSTS=hud.lan,other.lan` (comma-separated, no port).
 
+The Host check only stops browsers. A machine on your network can connect
+directly and send `Host: localhost`, so `bun run dev` and `bun run start` bind
+to `127.0.0.1` only (`next dev` / `next start` otherwise listen on every
+interface). Run them through the scripts, not bare `next dev`.
+
 ## Architecture
 
 See [`../docs/designs/2026-05-12-mission-control-dashboard.md`](../docs/designs/2026-05-12-mission-control-dashboard.md) for the full plan (office-hours → CEO review → eng review → design review).
