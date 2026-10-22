@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { rejectCrossOrigin } from '@/lib/request-guard';
 import { listMeetingsToday, query, getPage } from '@/lib/gbrain-client';
 import { bus } from '@/lib/event-bus';
+import { attendeeSlugs as readAttendees } from '@/lib/gbrain-shapes';
 import type { BriefMeResult, BrainPage } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -18,15 +19,13 @@ export async function POST(req: Request): Promise<Response> {
     const today_meetings = await listMeetingsToday();
 
     // Related people: extract people slugs from today's meeting frontmatter
-    // (frontmatter.attendees), de-dup, fetch each page.
+    // (frontmatter.attendees), de-dup, fetch each page. `list_pages` rows carry
+    // no frontmatter, so fetch the meeting page itself when it is missing.
     const attendeeSlugs = new Set<string>();
     for (const meeting of today_meetings) {
-      const attendees = (meeting.frontmatter?.attendees ?? []) as unknown;
-      if (Array.isArray(attendees)) {
-        for (const a of attendees) {
-          if (typeof a === 'string') attendeeSlugs.add(a);
-        }
-      }
+      const frontmatter = meeting.frontmatter
+        ?? (await getPage(meeting.slug).catch(() => null))?.frontmatter;
+      for (const a of readAttendees(frontmatter)) attendeeSlugs.add(a);
     }
     const related_people = (
       await Promise.all([...attendeeSlugs].map((slug) => getPage(slug)))
