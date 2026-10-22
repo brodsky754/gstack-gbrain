@@ -20,6 +20,7 @@ import type {
   GraphSnapshot,
   QueryResult,
 } from './types';
+import { normalizeEdges, normalizeEntities, withDegree } from './gbrain-shapes';
 
 const GBRAIN_BIN = process.env.GBRAIN_BIN || 'gbrain';
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -193,11 +194,12 @@ export async function listTopEntities(limit = 50): Promise<BrainEntity[]> {
   const results = await Promise.all(
     ENTITY_TYPES.map(async (type) => {
       try {
-        const r = await callTool<{ pages?: BrainEntity[] } | BrainEntity[]>(
+        const r = await callTool<unknown>(
           'list_pages',
           { type, limit: perType, sort: 'updated_desc' },
         );
-        return Array.isArray(r) ? r : (r.pages ?? []);
+        // list_pages rows carry no link_count; see lib/gbrain-shapes.ts.
+        return normalizeEntities(r);
       } catch {
         return [];
       }
@@ -219,12 +221,12 @@ export async function listEdges(slugs: string[]): Promise<BrainEdge[]> {
       // We need EDGES. Pass `direction: 'out'` to get edges per the GraphPath
       // shape. If that doesn't yield edges, fall back to traversal-with-depth
       // approximation by using get_links.
-      const res = await callTool<{ edges?: BrainEdge[] } | BrainEdge[]>(
+      const res = await callTool<unknown>(
         'traverse_graph',
         { slug, depth: 1, direction: 'out' },
       );
-      const edges = Array.isArray(res) ? res : (res.edges ?? []);
-      allEdges.push(...edges);
+      // gbrain returns {from_slug, to_slug, link_type}; map to BrainEdge.
+      allEdges.push(...normalizeEdges(res));
     } catch {
       // Skip individual failures; the graph survives partial data.
     }
@@ -236,7 +238,7 @@ export async function getGraphSnapshot(limit = 50): Promise<GraphSnapshot> {
   const nodes = await listTopEntities(limit);
   const edges = await listEdges(nodes.map(n => n.slug));
   return {
-    nodes,
+    nodes: withDegree(nodes, edges),
     edges,
     generated_at: new Date().toISOString(),
   };
